@@ -59,3 +59,12 @@ for track in tracks_uri:
 
 
 pd.DataFrame(all_track_info)
+
+#finding the average of each column from audio data
+columns_to_average = ['danceability', 'energy', 'key', 'loudness', 'mode', 'speechiness',
+                      'acousticness', 'instrumentalness', 'liveness', 'valence', 'tempo']
+
+means = playlist_data[columns_to_average].mean()
+
+print("Mean values for each section:")
+print(means)
