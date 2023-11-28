@@ -68,3 +68,23 @@ means = playlist_data[columns_to_average].mean()
 
 print("Mean values for each section:")
 print(means)
+#plotting the mean for each column
+audio_plot = plt.figure(figsize=(20, 20))
+colors = ['green', 'blue', 'red', 'orange', 'pink', 'olive', 'cyan', 'purple', 'peachpuff', 'crimson', 'lime']
+
+
+for i in range (11):
+    plt.bar(columns_to_average[i], means[i], color=colors[i])
+plt.title('Average Audio Features', fontsize=16)
+plt.xlabel('Audio Features', fontsize = 14)
+plt.ylabel('Average Value', fontsize=14)
+
+artist_count = playlist_data['track_artist'].value_counts()
+
+artist_plot = plt.figure(figsize=(20, 20))
+artist_count.plot(kind = 'bar', color = 'red')
+plt.title('Frequency of Artists', fontsize = 16)
+plt.xlabel('Artists', fontsize = 14)
+plt.ylabel('Number of Songs', fontsize = 14)
+
+
