@@ -23,6 +23,9 @@ track_uris = [x["track"]["uri"] for x in sp.playlist_tracks(playlist_URI)["items
 
 tracks_uri = {}
 tracks_artist_name = {}
+tracks_artist_pop = {}
+tracks_artist_genres = {}
+tracks_album = {}
 
 for track in sp.playlist_tracks(playlist_URI)["items"]:
     #URI
@@ -48,6 +51,9 @@ for track in sp.playlist_tracks(playlist_URI)["items"]:
     
     tracks_uri[track_name] = track_uri
     tracks_artist_name[track_name] = track["track"]["artists"][0]["name"]
+    tracks_artist_pop[track_name] = artist_info["popularity"]
+    tracks_artist_genres[track_name] = artist_info["genres"]
+    tracks_album[track_name] = track["track"]["album"]["name"]
 
     all_track_info = []
 
@@ -55,10 +61,16 @@ for track in tracks_uri:
     track_features = sp.audio_features(tracks_uri[track])[0]
     track_features['track_name'] = track
     track_features['track_artist'] = tracks_artist_name[track]
+    track_features['track_artist_popularity'] = tracks_artist_pop[track]
+    track_features['track_artist_genres'] = tracks_artist_genres[track]
+    track_features['track_album'] = tracks_album[track]
     all_track_info.append(track_features)
 
 
-pd.DataFrame(all_track_info)
+playlist_data = pd.DataFrame(all_track_info)
+playlist_data
+
+playlist_data.info()
 
 #finding the average of each column from audio data
 columns_to_average = ['danceability', 'energy', 'key', 'loudness', 'mode', 'speechiness',
