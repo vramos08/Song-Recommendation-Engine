@@ -11,13 +11,26 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 
 
-songs = pd.read_csv('songs.csv')
-#Extends the width of the column so we can see the actual lyrics.
-pd.set_option('display.max_colwidth', 1000)
-#Cleans up the beginning of the lyrics portion as it does not include the actual lyrics to the song/
-songs['Lyrics'] = songs['Lyrics'].apply(lambda x: x.split("Lyrics", 1)[-1].lstrip())
-#We also see \n present in the lyrics which indicates a new line but we will be replacing it with a space.
-songs['Lyrics'] = songs['Lyrics'].str.replace(r'\n', ' ')
+songs = pd.read_csv('spotify_songs.csv')
+
+filtered_songs = songs[songs['language'] == 'en']
+sort_song = filtered_songs.sort_values(by='track_popularity', ascending=False)
+#TODO - Remove all of the songs in the test playlist from this data set
+
+
+pd.set_option('display.max_colwidth', 100)
+columns_to_remove = [
+    'track_album_id', 'track_album_name', 'track_album_release_date',
+    'playlist_id', 'mode', 'speechiness', 'acousticness',
+    'instrumentalness', 'duration_ms', 'playlist_subgenre', 'key', 'liveness',
+    'valence'
+]
+cleaned_song = sort_song.drop(columns=columns_to_remove, errors='ignore')
+
+
+#Filter song to top 10000 songs
+pd.set_option('display.max_rows', 20)
+cleaned_song.head(10000)
 
 
 
@@ -25,14 +38,11 @@ songs['Lyrics'] = songs['Lyrics'].str.replace(r'\n', ' ')
 
 #TF-IDF is used to calculate the originality of a word by comparing the number of times the word appears in a document
 #with the number of documents the word appears in. This means that we are calculating the frequency of the word. 
+
 tfidf = TfidfVectorizer(analyzer='word', stop_words='english')
 lyrics_matrix = tfidf.fit_transform(songs['Lyrics'])
+
 #Content-based filtering uses cosine similarity for recommendation
 cosine_similarities = cosine_similarity(lyrics_matrix) 
 #Similar words will be stored in a dictionary which we will then use to recommend songs.
 similarities = {}
-
-
-
-
-songs.head()
