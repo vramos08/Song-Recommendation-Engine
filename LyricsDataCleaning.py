@@ -46,3 +46,11 @@ lyrics_matrix = tfidf.fit_transform(songs['Lyrics'])
 cosine_similarities = cosine_similarity(lyrics_matrix) 
 #Similar words will be stored in a dictionary which we will then use to recommend songs.
 similarities = {}
+
+
+
+#How I will approach the recommendation of the songs.
+#Lyrical recommendations requires a specific song to compare lyrics to.
+#As a result, I will be taking the the 10 most popular song from the most popular genre and recommending 3 songs each.
+#Each song will also have a similarity score.
+#Then I will sort the songs based on how often they appeared in the recommendation and they will be recommended.
