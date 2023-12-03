@@ -72,11 +72,23 @@ playlist_data
 
 playlist_data.info()
 
-#finding the average of each column from audio data
+# dropping unnecessary columns to clean
+playlist_data = playlist_data.drop(columns = ["mode", "type", "id", "uri", "track_href", "analysis_url", "duration_ms", "time_signature"])
+playlist_data.head()
+
+# finding the average of each column from audio data
 columns_to_average = ['danceability', 'energy', 'key', 'loudness', 'mode', 'speechiness',
                       'acousticness', 'instrumentalness', 'liveness', 'valence', 'tempo']
 
 means = playlist_data[columns_to_average].mean()
+
+# finding top genres
+genre_counts = playlist_data["track_artist_genres"].value_counts()
+genre_counts
+
+# finding top albums
+album_counts = playlist_data["track_album"].value_counts()
+album_counts
 
 print("Mean values for each section:")
 print(means)
@@ -99,4 +111,25 @@ plt.title('Frequency of Artists', fontsize = 16)
 plt.xlabel('Artists', fontsize = 14)
 plt.ylabel('Number of Songs', fontsize = 14)
 
+# data processing for recommendation engine
+# one hot encoding for categorical variables
+artist_OHE = pd.get_dummies(playlist_data.track_artist)
+genre_OHE = pd.get_dummies(playlist_data.track_artist_genres)
+album_OHE = pd.get_dummies(playlist_data.track_artist_album)
+key_OHE = pd.get_dummies(playlist_data.key)
+
+# max-min normalization for numerical values
+scaled_features = MinMaxScalar().fit_transform([
+    playlist_data['acousticness'].values,
+    playlist_data['danceability'].values,
+    playlist_data['energy'].values,
+    playlist_data['instrumentalness'].values,
+    playlist_data['liveness'].values,
+    playlist_data['loudness'].values,
+    playlist_data['speechiness'].values,
+    playlist_data['tempo'].values,
+    playlist_data['valence'].values
+])
+
+# store into dataframe
 
