@@ -88,9 +88,9 @@ else:
 
 # Identifying the top genres
 genre_counts = playlist_data["track_artist_genres"].value_counts()
-print(genre_counts) # The results show repeating genres within the arrays 
+print(genre_counts) # The results show repeating genres within the lists 
 
-# Splitting the arrays such that each individual genre element is its own separate category
+# Splitting the lists such that each individual genre element is its own separate category
 genre_count = {}
 for arr in playlist_data['track_artist_genres']:
     for genre in arr:
