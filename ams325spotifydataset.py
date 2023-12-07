@@ -27,6 +27,7 @@ tracks_artist_pop = {}
 tracks_artist_genres = {}
 tracks_album = {}
 
+
 for track in sp.playlist_tracks(playlist_URI)["items"]:
     #URI
     track_uri = track["track"]["uri"]
@@ -46,49 +47,81 @@ for track in sp.playlist_tracks(playlist_URI)["items"]:
     #Album
     album = track["track"]["album"]["name"]
     
-    #Popularity of the track
-    track_pop = track["track"]["popularity"]
-    
     tracks_uri[track_name] = track_uri
     tracks_artist_name[track_name] = track["track"]["artists"][0]["name"]
     tracks_artist_pop[track_name] = artist_info["popularity"]
     tracks_artist_genres[track_name] = artist_info["genres"]
     tracks_album[track_name] = track["track"]["album"]["name"]
 
-    all_track_info = []
+# Putting it all together for the dataframe
+all_track_info = []
 
 for track in tracks_uri:
     track_features = sp.audio_features(tracks_uri[track])[0]
     track_features['track_name'] = track
     track_features['track_artist'] = tracks_artist_name[track]
+    
     track_features['track_artist_popularity'] = tracks_artist_pop[track]
     track_features['track_artist_genres'] = tracks_artist_genres[track]
     track_features['track_album'] = tracks_album[track]
+    
     all_track_info.append(track_features)
 
-
 playlist_data = pd.DataFrame(all_track_info)
-playlist_data
 
 playlist_data.info()
+playlist_data.head()
 
-# dropping unnecessary columns to clean
+# Clean data
+# Drop unnecessary columns
 playlist_data = playlist_data.drop(columns = ["mode", "type", "id", "uri", "track_href", "analysis_url", "duration_ms", "time_signature"])
 playlist_data.head()
+
+# Checks for any duplicates
+duplicates = playlist_data['track_name'].duplicated()
+duplicate_songs = playlist_data[duplicates]
+if len(duplicate_songs) == 0:
+    print("There are no duplicate songs in the playlist.")
+else:
+    for index, row in duplicate_songs.iterrows():
+        print(row)
+
+# Identifying the top genres
+genre_counts = playlist_data["track_artist_genres"].value_counts()
+print(genre_counts) # The results show repeating genres within the arrays 
+
+# Splitting the arrays such that each individual genre element is its own separate category
+genre_count = {}
+for arr in playlist_data['track_artist_genres']:
+    for genre in arr:
+        genre = genre.strip()
+        if genre in genre_count:
+            genre_count[genre] += 1
+        else:
+            genre_count[genre] = 1
+
+# Sort genres from highest count to lowest count
+genres_in_order = dict(sorted(genre_count.items(), key = lambda item: item[1], reverse=True))
+print(genres_in_order)
+
+# Plot the genre counts as a horizontal bar graph
+plt.barh(list(genres_in_order.keys()), list(genres_in_order.values()))
+plt.xlabel("Genre Count")
+plt.ylabel("Genre")
+plt.title("Genres in the Playlist")
+plt.show()
+
+# Finding the top albums
+album_counts = playlist_data["track_album"].value_counts()
+print(album_counts)
+
+
 
 # finding the average of each column from audio data
 columns_to_average = ['danceability', 'energy', 'key', 'loudness', 'mode', 'speechiness',
                       'acousticness', 'instrumentalness', 'liveness', 'valence', 'tempo']
 
 means = playlist_data[columns_to_average].mean()
-
-# finding top genres
-genre_counts = playlist_data["track_artist_genres"].value_counts()
-genre_counts
-
-# finding top albums
-album_counts = playlist_data["track_album"].value_counts()
-album_counts
 
 print("Mean values for each section:")
 print(means)
@@ -111,7 +144,8 @@ plt.title('Frequency of Artists', fontsize = 16)
 plt.xlabel('Artists', fontsize = 14)
 plt.ylabel('Number of Songs', fontsize = 14)
 
-# data processing for recommendation engine
+# PREPARATION FOR RECOMMENDATION ENGINE
+# Data processing for recommendation engine
 # one hot encoding for categorical variables
 artist_OHE = pd.get_dummies(playlist_data.track_artist)
 genre_OHE = pd.get_dummies(playlist_data.track_artist_genres)
