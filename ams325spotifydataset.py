@@ -154,26 +154,39 @@ plt.ylabel('Number of Songs', fontsize = 14)
 
 
 
-# PREPARATION FOR RECOMMENDATION ENGINE
-# Data processing for recommendation engine
+
+
+# AFTER DATA ANALYSIS + VISUALIZATION, PREPARE DATAFRAME FOR RECOMMENDATION MACHINE (ALTER DATAFRAME)
+
 # one hot encoding for categorical variables
 artist_OHE = pd.get_dummies(playlist_data.track_artist)
-genre_OHE = pd.get_dummies(playlist_data.track_artist_genres)
-album_OHE = pd.get_dummies(playlist_data.track_artist_album)
+album_OHE = pd.get_dummies(playlist_data.track_album)
 key_OHE = pd.get_dummies(playlist_data.key)
 
 # max-min normalization for numerical values
-scaled_features = MinMaxScalar().fit_transform([
-    playlist_data['acousticness'].values,
+scaled_attributes = MinMaxScaler().fit_transform([
     playlist_data['danceability'].values,
     playlist_data['energy'].values,
-    playlist_data['instrumentalness'].values,
-    playlist_data['liveness'].values,
     playlist_data['loudness'].values,
     playlist_data['speechiness'].values,
-    playlist_data['tempo'].values,
-    playlist_data['valence'].values
+    playlist_data['acousticness'].values,
+    playlist_data['instrumentalness'].values,
+    playlist_data['liveness'].values,
+    playlist_data['valence'].values,
+    playlist_data['tempo'].values
 ])
 
-# store into dataframe
+# alter dataframe
+playlist_data[['danceability','energy','loudness','speechiness','acousticness','instrumentalness','liveness','valence', 'tempo']] = scaled_attributes.T
+playlist_data = playlist_data.drop('track_name', axis = 1)
+playlist_data = playlist_data.drop('track_artist_popularity', axis = 1)
+playlist_data = playlist_data.drop('key', axis = 1)
+playlist_data = playlist_data.drop('track_artist', axis = 1)
+playlist_data = playlist_data.drop('track_album', axis = 1)
+playlist_data = playlist_data.join(artist_OHE)
+playlist_data = playlist_data.join(album_OHE)
+playlist_data = playlist_data.join(key_OHE)
+playlist_data.drop('track_artist_genres', 1).join(playlist_data.track_artist_genres.str.join('|').str.get_dummies()) # OHE for genre (different because values were in lists)
+playlist_data.head()
+playlist_data.info()
 
