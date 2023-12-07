@@ -115,6 +115,14 @@ plt.show()
 album_counts = playlist_data["track_album"].value_counts()
 print(album_counts)
 
+# Graphing the top 5 albums
+top_albums = album_counts.head()
+top_albums.plot(kind = 'barh')
+plt.title('Top 5 Albums in the Playlist')
+plt.xlabel('Count')
+plt.ylabel('Album')
+plt.show()
+
 
 
 # finding the average of each column from audio data
@@ -143,6 +151,8 @@ artist_count.plot(kind = 'bar', color = 'red')
 plt.title('Frequency of Artists', fontsize = 16)
 plt.xlabel('Artists', fontsize = 14)
 plt.ylabel('Number of Songs', fontsize = 14)
+
+
 
 # PREPARATION FOR RECOMMENDATION ENGINE
 # Data processing for recommendation engine
