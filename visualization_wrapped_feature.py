@@ -286,7 +286,7 @@ draw2.text((200, 610), artist5_name, font=font2, fill=(0,0,128))
 
 #this part will be used when taking the all in one card
 image_combine = Image.open(r"C:\Users\viann\Pictures\SpotifyTemplate.jpg")
-sizeAgain = im1.resize((300, 230), Image.ANTIALIAS)
+sizeAgain = im1_artist.resize((300, 230), Image.ANTIALIAS)
 together = image_combine.resize((500, 700))
 together.paste(sizeAgain, (95,72))
 
