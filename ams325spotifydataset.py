@@ -74,7 +74,7 @@ playlist_data.head()
 
 # Clean data
 # Drop unnecessary columns
-playlist_data = playlist_data.drop(columns = ["mode", "type", "id", "uri", "track_href", "analysis_url", "duration_ms", "time_signature"])
+playlist_data = playlist_data.drop(columns = ["mode", "key", "type", "uri", "track_href", "analysis_url", "duration_ms", "time_signature"])
 playlist_data.head()
 
 # Checks for any duplicates
@@ -85,6 +85,10 @@ if len(duplicate_songs) == 0:
 else:
     for index, row in duplicate_songs.iterrows():
         print(row)
+
+
+
+# DATA ANALYSIS AND VISUALIZATIONS 
 
 # Identifying the top genres
 genre_counts = playlist_data["track_artist_genres"].value_counts()
@@ -155,13 +159,8 @@ plt.ylabel('Number of Songs', fontsize = 14)
 
 
 
-
+# RECOMMENDATION ENGINE
 # AFTER DATA ANALYSIS + VISUALIZATION, PREPARE DATAFRAME FOR RECOMMENDATION MACHINE (ALTER DATAFRAME)
-
-# one hot encoding for categorical variables
-artist_OHE = pd.get_dummies(playlist_data.track_artist)
-album_OHE = pd.get_dummies(playlist_data.track_album)
-key_OHE = pd.get_dummies(playlist_data.key)
 
 # max-min normalization for numerical values
 scaled_attributes = MinMaxScaler().fit_transform([
@@ -178,17 +177,10 @@ scaled_attributes = MinMaxScaler().fit_transform([
 
 # alter dataframe
 playlist_data[['danceability','energy','loudness','speechiness','acousticness','instrumentalness','liveness','valence', 'tempo']] = scaled_attributes.T
-playlist_data = playlist_data.drop('track_name', axis = 1)
 playlist_data = playlist_data.drop('track_artist_popularity', axis = 1)
-playlist_data = playlist_data.drop('key', axis = 1)
-playlist_data = playlist_data.drop('track_artist', axis = 1)
 playlist_data = playlist_data.drop('track_album', axis = 1)
-playlist_data = playlist_data.join(artist_OHE)
-playlist_data = playlist_data.join(album_OHE)
-playlist_data = playlist_data.join(key_OHE)
-playlist_data.drop('track_artist_genres', 1).join(playlist_data.track_artist_genres.str.join('|').str.get_dummies()) # OHE for genre (different because values were in lists)
+playlist_data = playlist_data.drop('track_artist_genres', axis = 1)
 playlist_data.head()
-playlist_data.info()
 
 # PREPARING THE SECOND PLAYLIST- THE POOL OF SONGS WE ARE GOING TO RECOMMEND FROM
 
@@ -196,13 +188,9 @@ pool_songs = pd.read_csv('spotify_songs.csv')
 pool_songs.info()
 
 # clean dataset so the same types of features are compared between the two playlists
-pool_songs = pool_songs.drop(columns = ["track_id", "lyrics", "track_popularity", "track_album_id", "track_album_release_date", "playlist_name", "playlist_id", "playlist_subgenre", "duration_ms", "language", "key", "mode"])
-pool_songs = pool_songs.rename(columns={"track_album_name":"track_album", "playlist_genre":"genre"})
+pool_songs = pool_songs.drop(columns = ["lyrics", "track_popularity", "track_album_id", "track_album_name", "playlist_genre", "track_album_release_date", "playlist_name", "playlist_id", "playlist_subgenre", "duration_ms", "language", "key", "mode"])
+pool_songs = pool_songs.rename(columns={"track_id":"id"})
 pool_songs.head()
-
-# one hot encoding for categorical variables
-pool_artist_OHE = pd.get_dummies(pool_songs.track_artist)
-pool_genre_OHE = pd.get_dummies(pool_songs.genre)
 
 # max-min normalization for numerical values
 pool_scaled_attributes = MinMaxScaler().fit_transform([
@@ -219,11 +207,23 @@ pool_scaled_attributes = MinMaxScaler().fit_transform([
 
 # alter dataframe
 pool_songs[['danceability','energy','loudness','speechiness','acousticness','instrumentalness','liveness','valence', 'tempo']] = pool_scaled_attributes.T
-pool_songs = pool_songs.drop('track_name', axis = 1)
-pool_songs = pool_songs.drop('track_artist', axis = 1)
-pool_songs = pool_songs.drop('track_album', axis = 1)
-pool_songs = pool_songs.drop('genre', axis = 1)
-pool_songs = pool_songs.join(pool_artist_OHE)
-pool_songs = pool_songs.join(pool_genre_OHE)
-
 pool_songs.head()
+
+# Remove songs from pool_songs that are already in playlist_data
+pool_songs = pool_songs[~pool_songs['id'].isin(playlist_data['id'].values)]
+
+# Create a matrix of cosine similarity scores in which the rows represent the songs from pool_songs and the columns represent songs from playlist_data.
+cos_sim_matrix = cosine_similarity(t.drop(columns=['id', 'track_name', 'track_artist']), pool_songs.drop(columns=['id', 'track_name', 'track_artist']))
+
+# Each song in pool_song is compared to every song in playlist_data. For each song in pool_songs, i.e. each row, keep the maximum similarity score.
+sim_scores = cos_sim_matrix.max(axis=0)  
+
+# Create a new column in pool_songs containing the similarity scores 
+pool_songs['similarity_score'] = sim_scores
+
+# Sort based on highest similarity scores
+pool_songs = pool_songs.sort_values(by='similarity_score', ascending=False)
+
+# Choose top 10 songs to recommend
+top_recs = pool_songs.head(10)
+top_recs
