@@ -190,3 +190,40 @@ playlist_data.drop('track_artist_genres', 1).join(playlist_data.track_artist_gen
 playlist_data.head()
 playlist_data.info()
 
+# PREPARING THE SECOND PLAYLIST- THE POOL OF SONGS WE ARE GOING TO RECOMMEND FROM
+
+pool_songs = pd.read_csv('spotify_songs.csv')
+pool_songs.info()
+
+# clean dataset so the same types of features are compared between the two playlists
+pool_songs = pool_songs.drop(columns = ["track_id", "lyrics", "track_popularity", "track_album_id", "track_album_release_date", "playlist_name", "playlist_id", "playlist_subgenre", "duration_ms", "language", "key", "mode"])
+pool_songs = pool_songs.rename(columns={"track_album_name":"track_album", "playlist_genre":"genre"})
+pool_songs.head()
+
+# one hot encoding for categorical variables
+pool_artist_OHE = pd.get_dummies(pool_songs.track_artist)
+pool_genre_OHE = pd.get_dummies(pool_songs.genre)
+
+# max-min normalization for numerical values
+pool_scaled_attributes = MinMaxScaler().fit_transform([
+    pool_songs['danceability'].values,
+    pool_songs['energy'].values,
+    pool_songs['loudness'].values,
+    pool_songs['speechiness'].values,
+    pool_songs['acousticness'].values,
+    pool_songs['instrumentalness'].values,
+    pool_songs['liveness'].values,
+    pool_songs['valence'].values,
+    pool_songs['tempo'].values
+])
+
+# alter dataframe
+pool_songs[['danceability','energy','loudness','speechiness','acousticness','instrumentalness','liveness','valence', 'tempo']] = pool_scaled_attributes.T
+pool_songs = pool_songs.drop('track_name', axis = 1)
+pool_songs = pool_songs.drop('track_artist', axis = 1)
+pool_songs = pool_songs.drop('track_album', axis = 1)
+pool_songs = pool_songs.drop('genre', axis = 1)
+pool_songs = pool_songs.join(pool_artist_OHE)
+pool_songs = pool_songs.join(pool_genre_OHE)
+
+pool_songs.head()
