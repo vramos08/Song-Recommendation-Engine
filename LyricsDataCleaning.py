@@ -2,6 +2,7 @@
 #Since we are using content-based filtering, we will be taking lyrics of the dataset and obtaining frequent words using the TF-IDF statistic. 
 #Then we will use cosine similarity to compare the current playlist to our TF-IDF statistic to recommend songs.
 
+
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -22,11 +23,11 @@ columns_to_remove = [
     'track_album_id', 'track_album_name', 'track_album_release_date',
     'playlist_id', 'mode', 'speechiness', 'acousticness',
     'instrumentalness', 'duration_ms', 'playlist_subgenre', 'key', 'liveness',
-    'valence'
+    'valence', 'track_id', 'playlist_name', 'playlist_genre', 'energy',
+    'loudness', 'tempo'
 ]
 cleaned_song = sort_song.drop(columns=columns_to_remove, errors='ignore')
 cleaned_song = cleaned_song.reset_index(drop=True)
-cleaned_song = cleaned_song.head(10000)
 print(cleaned_song.head(10000))
 
 
@@ -66,7 +67,7 @@ similarities = {}
 for i in range(len(cosine_similarities)):
     similar_index = cosine_similarities[i].argsort()[:-50:-1]
     similarities[cleaned_song['track_name'].iloc[i]] = [
-        (cosine_similarities[i][x], cleaned_song['track_name'][x], songs['track_artist'][x]) for x in similar_index][1:]
+        (cosine_similarities[i][x], cleaned_song['track_name'].iloc[x], cleaned_song['track_artist'].iloc[x]) for x in similar_index][1:]
     
 #Function class to recommend a song based off cosine similarity
 class ContentBasedRecommender:
@@ -100,7 +101,7 @@ for song in selected_songs:
     recommendation = {
         'track_name': song['Track name'],
         'track_artist': song['Artist name'],
-        'number_of_songs': 10
+        'number_of_songs': 3
     }
 
     recommender = ContentBasedRecommender(similarities)
@@ -118,6 +119,7 @@ all_recommendations_df = pd.concat(recommendations, ignore_index=True)
 all_recommendations_df.sort_values(by='Similarity', ascending=False, inplace=True)
 # get the top 30 most similar recommendation
 top_30_recommendations_df = all_recommendations_df.head(30)
+all_recommendations_df.to_csv('recommendations.csv', index=False)
     
 # Displays the recommendations in a dataframe.
 print(top_30_recommendations_df)
@@ -133,3 +135,4 @@ plt.tight_layout()
 
 # Display the plot
 plt.show()
+
