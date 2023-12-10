@@ -253,4 +253,6 @@ top_30_recs
 check1 = top_30_recs.iloc[0:1].copy()
 check2 = playlist_data.iloc[93:94].copy()
 check_cos = cosine_similarity(check1.drop(columns=['id','track_name', 'track_artist', 'similarity_score']), check2.drop(columns=['id','track_name', 'track_artist']))
-print(check_cos)
+check_cos
+
+top_30_recs
