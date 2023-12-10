@@ -243,10 +243,10 @@ sim_scores = cos_sim_matrix.max(axis=1)
 pool_songs['similarity_score'] = sim_scores
 
 # Sort based on highest similarity scores
-pool_songs = pool_songs.sort_values(by='similarity_score', ascending=False)
+sorted_pool_songs = pool_songs.sort_values(by='similarity_score', ascending=False)
 
 # Choose top 30 songs to recommend
-top_30_recs = pool_songs.head(30)
+top_30_recs = sorted_pool_songs.head(30)
 top_30_recs
 
 # CHECK: Compare the first recommendation to the song "Difficult" by Gracie Abrams in my playlist; check similarity score
