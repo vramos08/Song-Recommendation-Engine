@@ -34,8 +34,8 @@ print(cleaned_song.head(10000))
 
 #Used for content-based filtering
 
-playlist_data = pd.read_csv('AMS325SpotifyPlaylist.csv')
-playlist_songs = playlist_data[['Track name', 'Artist name']].drop_duplicates()
+#playlist_data = pd.read_csv('AMS325SpotifyPlaylist.csv')
+playlist_songs = top_30_recs[['track_name', 'track_artist']].drop_duplicates()
 
 selected_songs = []
 #Number of songs we want to get from the original playlist.
@@ -47,7 +47,7 @@ while len(selected_songs) < target_songs:
     random_song = playlist_songs.sample().iloc[0]
     
     # Check if the selected song is in cleaned_song
-    if (cleaned_song['track_name'] == random_song['Track name']).any():
+    if (cleaned_song['track_name'] == random_song['track_name']).any():
         selected_songs.append(random_song)
 
 recommendations = []
@@ -99,9 +99,9 @@ class ContentBasedRecommender:
 #Creates the recommendation using the ContentBasedRecommender function using the cosine similarity metric.
 for song in selected_songs:
     recommendation = {
-        'track_name': song['Track name'],
-        'track_artist': song['Artist name'],
-        'number_of_songs': 3
+        'track_name': song['track_name'],
+        'track_artist': song['track_artist'],
+        'number_of_songs': 10
     }
 
     recommender = ContentBasedRecommender(similarities)
@@ -135,4 +135,3 @@ plt.tight_layout()
 
 # Display the plot
 plt.show()
-
