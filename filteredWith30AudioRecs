@@ -1,0 +1,17 @@
+import sys
+sys.path.append('/opt/anaconda3/lib/python3.9/site-packages')
+
+import spotipy
+from spotipy.oauth2 import SpotifyClientCredentials
+from spotipy.oauth2 import SpotifyOAuth
+import spotipy.util as util
+import matplotlib.pyplot as plt
+import pandas as pd
+from datetime import datetime
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics.pairwise import cosine_similarity
+
+pool_songs = pd.read_csv('spotify_songs.csv')
+top_30_recs_indices = [233, 76, 15044, 12502, 930, 16823, 4170, 6434, 8457, 17149, 13866, 15163, 12728, 5960, 18447, 13036, 10130, 12306, 14289, 4461, 13533, 10210, 4229, 3194, 16805, 9015, 6376, 12954, 16404, 8873]
+filt = pool_songs.iloc[top_30_recs_indices]
+filt.head()
