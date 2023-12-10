@@ -9,12 +9,6 @@ from sklearn.metrics.pairwise import cosine_similarity
 import random
 import matplotlib.pyplot as plt
 
-
-#The purpose of this script is to clean the dataset
-#Since we are using content-based filtering, we will be taking lyrics of the dataset and obtaining frequent words using the TF-IDF statistic. 
-#Then we will use cosine similarity to compare the current playlist to our TF-IDF statistic to recommend songs.
-
-
 songs = pd.read_csv('spotify_songs.csv')
 #There are non-english songs in the playlist, we will be filtering those songs out.
 #We are also going to sort the dataset by popularity with the most popular songs at the top.
