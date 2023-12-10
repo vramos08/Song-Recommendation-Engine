@@ -234,10 +234,10 @@ backup = (pool_songs['track_name'].isin(playlist_data['track_name'].values)) & (
 pool_songs = pool_songs[~backup]
 
 # Create a matrix of cosine similarity scores in which the rows represent the songs from pool_songs and the columns represent songs from playlist_data.
-cos_sim_matrix = cosine_similarity(playlist_data.drop(columns=['id', 'track_name', 'track_artist']), pool_songs.drop(columns=['id', 'track_name', 'track_artist']))
+cos_sim_matrix = cosine_similarity(pool_songs.drop(columns=['id', 'track_name', 'track_artist']), playlist_data.drop(columns=['id', 'track_name', 'track_artist']))
 
 # Each song in pool_song is compared to every song in playlist_data. For each song in pool_songs, i.e. each row, keep the maximum similarity score.
-sim_scores = cos_sim_matrix.max(axis=0)  
+sim_scores = cos_sim_matrix.max(axis=1)
 
 # Create a new column in pool_songs containing the similarity scores 
 pool_songs['similarity_score'] = sim_scores
