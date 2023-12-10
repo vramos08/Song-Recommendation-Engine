@@ -2,17 +2,11 @@
 #Since we are using content-based filtering, we will be taking lyrics of the dataset and obtaining frequent words using the TF-IDF statistic. 
 #Then we will use cosine similarity to compare the current playlist to our TF-IDF statistic to recommend songs.
 
-
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import random
 import matplotlib.pyplot as plt
-
-
-#The purpose of this script is to clean the dataset
-#Since we are using content-based filtering, we will be taking lyrics of the dataset and obtaining frequent words using the TF-IDF statistic. 
-#Then we will use cosine similarity to compare the current playlist to our TF-IDF statistic to recommend songs.
 
 
 songs = pd.read_csv('spotify_songs.csv')
@@ -33,6 +27,8 @@ columns_to_remove = [
 cleaned_song = sort_song.drop(columns=columns_to_remove, errors='ignore')
 cleaned_song = cleaned_song.reset_index(drop=True)
 cleaned_song = cleaned_song.head(10000)
+print(cleaned_song.head(10000))
+
 
 
 #Used for content-based filtering
@@ -71,6 +67,7 @@ for i in range(len(cosine_similarities)):
     similar_index = cosine_similarities[i].argsort()[:-50:-1]
     similarities[cleaned_song['track_name'].iloc[i]] = [
         (cosine_similarities[i][x], cleaned_song['track_name'][x], songs['track_artist'][x]) for x in similar_index][1:]
+    
 #Function class to recommend a song based off cosine similarity
 class ContentBasedRecommender:
     def __init__(self, matrix):
@@ -106,40 +103,33 @@ for song in selected_songs:
         'number_of_songs': 10
     }
 
-    try:
-        recommender = ContentBasedRecommender(similarities)
-        recommendations_df = recommender.recommend(
-            recommendation['track_name'],
-            recommendation['track_artist'],
-            recommendation['number_of_songs']
-        )
-        recommendations.append(recommendations_df)
-
-    except KeyError:
-        print(f"Error: The song '{recommendation['track_name']}' is not present in the similarity matrix.")
+    recommender = ContentBasedRecommender(similarities)
+    recommendations_df = recommender.recommend(
+        recommendation['track_name'],
+        recommendation['track_artist'],
+        recommendation['number_of_songs']
+    )
+    recommendations.append(recommendations_df)
 
 
-# Checks to see if the recommendation list is empty. 
-if recommendations: 
-    all_recommendations_df = pd.concat(recommendations, ignore_index=True)
-    # Sorts the recommendation by similarity score
-    all_recommendations_df.sort_values(by='Similarity', ascending=False, inplace=True)
-    # get the top 30 most similar recommendation
-    top_30_recommendations_df = all_recommendations_df.head(30)
+
+all_recommendations_df = pd.concat(recommendations, ignore_index=True)
+# Sorts the recommendation by similarity score
+all_recommendations_df.sort_values(by='Similarity', ascending=False, inplace=True)
+# get the top 30 most similar recommendation
+top_30_recommendations_df = all_recommendations_df.head(30)
     
-    # Displays the recommendations in a dataframe.
-    print(top_30_recommendations_df)
+# Displays the recommendations in a dataframe.
+print(top_30_recommendations_df)
     
-    # A plot for similarity score
-    plt.figure(figsize=(10, 6))
-    plt.bar(top_30_recommendations_df['Recommended Song'], top_30_recommendations_df['Similarity'], color='blue')
-    plt.xlabel('Recommended Song')
-    plt.ylabel('Similarity Score')
-    plt.title('Top 30 Recommended Songs and Their Similarity Scores')
-    plt.xticks(rotation=45, ha='right')
-    plt.tight_layout()
+# A plot for similarity score
+plt.figure(figsize=(10, 6))
+plt.bar(top_30_recommendations_df['Recommended Song'], top_30_recommendations_df['Similarity'], color='blue')
+plt.xlabel('Recommended Song')
+plt.ylabel('Similarity Score')
+plt.title('Top 30 Recommended Songs and Their Similarity Scores')
+plt.xticks(rotation=45, ha='right')
+plt.tight_layout()
 
-    # Display the plot
-    plt.show()
-else:
-    print("No recommendations found.")
+# Display the plot
+plt.show()
