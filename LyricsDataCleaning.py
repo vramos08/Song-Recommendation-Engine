@@ -9,6 +9,12 @@ from sklearn.metrics.pairwise import cosine_similarity
 import random
 import matplotlib.pyplot as plt
 
+
+#The purpose of this script is to clean the dataset
+#Since we are using content-based filtering, we will be taking lyrics of the dataset and obtaining frequent words using the TF-IDF statistic. 
+#Then we will use cosine similarity to compare the current playlist to our TF-IDF statistic to recommend songs.
+
+
 songs = pd.read_csv('spotify_songs.csv')
 #There are non-english songs in the playlist, we will be filtering those songs out.
 #We are also going to sort the dataset by popularity with the most popular songs at the top.
@@ -54,6 +60,7 @@ recommendations = []
 
 tfidf = TfidfVectorizer(analyzer='word', stop_words='english', max_features = 500)
 lyrics_matrix = tfidf.fit_transform(cleaned_song['lyrics'])
+print(lyrics_matrix)
 
 #Content-based filtering uses cosine similarity for recommendation
 cosine_similarities = cosine_similarity(lyrics_matrix) 
@@ -96,7 +103,7 @@ for song in selected_songs:
     recommendation = {
         'track_name': song['Track name'],
         'track_artist': song['Artist name'],
-        'number_of_songs': 3
+        'number_of_songs': 10
     }
 
     try:
@@ -117,18 +124,18 @@ if recommendations:
     all_recommendations_df = pd.concat(recommendations, ignore_index=True)
     # Sorts the recommendation by similarity score
     all_recommendations_df.sort_values(by='Similarity', ascending=False, inplace=True)
-    # get the top 15 most similar recommendation
-    top_15_recommendations_df = all_recommendations_df.head(15)
+    # get the top 30 most similar recommendation
+    top_30_recommendations_df = all_recommendations_df.head(30)
     
     # Displays the recommendations in a dataframe.
-    print(top_15_recommendations_df)
+    print(top_30_recommendations_df)
     
     # A plot for similarity score
     plt.figure(figsize=(10, 6))
-    plt.bar(top_15_recommendations_df['Recommended Song'], top_15_recommendations_df['Similarity'], color='blue')
+    plt.bar(top_30_recommendations_df['Recommended Song'], top_30_recommendations_df['Similarity'], color='blue')
     plt.xlabel('Recommended Song')
     plt.ylabel('Similarity Score')
-    plt.title('Top 15 Recommended Songs and Their Similarity Scores')
+    plt.title('Top 30 Recommended Songs and Their Similarity Scores')
     plt.xticks(rotation=45, ha='right')
     plt.tight_layout()
 
