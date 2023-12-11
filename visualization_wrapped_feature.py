@@ -207,14 +207,14 @@ font3 = ImageFont.truetype("arial.ttf", 16)
 font4 = ImageFont.truetype("arial.ttf", 14)
 draw.text((10, 40), title, font=font, fill=(0, 0, 128))
 
-#displaying the numebers
+#displaying the numbers
 draw.text((20, 120), "#1", font=font1, fill=(0,0,128))
 draw.text((20, 240), "#2", font=font1, fill=(0,0,128))
 draw.text((20, 360), "#3", font=font1, fill=(0,0,128))
 draw.text((20, 480), "#4", font=font1, fill=(0,0,128))
 draw.text((20, 600), "#5", font=font1, fill=(0,0,128))
 
-#displaying the title of the albums
+#displaying the title of the album's
 draw.text((200, 130), album1_name, font=font2, fill=(0,0,128))
 draw.text((200, 250), album2_name, font=font2, fill=(0,0,128))
 draw.text((200, 368), album3_name[:len(album3_name)//2], font=font2, fill=(0,0,128))
@@ -248,7 +248,8 @@ artist5_name = top_artists.index[4]
 Aimage5_url = artist_images.loc[artist_images['name'] == artist5_name, 'images'].values[0]
 im5_artist = Image.open(BytesIO(requests.get(Aimage5_url).content))
 
-background2 = Image.new("RGB", (500, 700), (71, 249, 184))
+#creating a yellow background
+background2 = Image.new("RGB", (500, 700), (254,251,102))
 
 #resizing the images to be small around 100by100
 resize1a = im1_artist.resize((100, 100), Image.ANTIALIAS) 
@@ -285,7 +286,7 @@ draw2.text((200, 610), artist5_name, font=font2, fill=(0,0,128))
 
 
 #this part will be used when taking the all in one card
-image_combine = Image.open(r"C:\Users\viann\Pictures\SpotifyTemplate.jpg")
+image_combine = Image.open(r"SpotifyTemplate.jpg")
 sizeAgain = im1_artist.resize((300, 230), Image.ANTIALIAS)
 together = image_combine.resize((500, 700))
 together.paste(sizeAgain, (95,72))
