@@ -29,8 +29,8 @@ print(cleaned_song.head(10000))
 
 
 #Used for content-based filtering
-#Use the filt dataset of 30 recommended songs based off of audio metrics.
-playlist_songs = filt[['track_name', 'track_artist']].drop_duplicates()
+#Use the Top30_audio_recs dataset of 30 recommended songs based off of audio metrics.
+playlist_songs = pd.read_csv('Top30_audio_recs.csv')
 
 recommendations = []
 
@@ -92,8 +92,8 @@ class ContentBasedRecommender:
             print(f"No recommendations available for {song}")
             
 #Creates the recommendation using the ContentBasedRecommender function using the cosine similarity metric.
-#Recommends a song for every row in filt(dataset of 30 recommended songs based off of audio metrics)
-for _, row in filt.iterrows():
+#Recommends a song for every row in playlist_songs(dataset of 30 recommended songs based off of audio metrics)
+for _, row in playlist_songs.iterrows():
     recommendation = {'track_name': row['track_name'],
     'track_artist': row['track_artist'],
     'number_of_songs': 1}
