@@ -259,3 +259,5 @@ top_30_audio_recs
 #from IPython.display import FileLink, FileLinks
 #top30_audio_recs = top_30_audio_recs.to_csv('Top30_audio_recs.csv', index = False)
 #FileLink('C:/Users/kristinekong/Desktop/Top30audio_recs.csv')
+
+print(top_30_audio_recs)
