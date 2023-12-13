@@ -1,3 +1,5 @@
+# The purpose of this code is to first extract the playlist from Spotify's Web API and perform initial data analysis and visualizations on the playlist data (e.g. top genres). Afterwards, this code showcases part 1 of the recommendation engine, i.e. recommending 30 songs solely based on the similarity of audio features. From these 30 recommendations, 15 final recommendations will be generated through lyrical filtering (shown in the LyricsDataCleaning file).
+
 import sys
 sys.path.append('/opt/anaconda3/lib/python3.9/site-packages')
 import spotipy
