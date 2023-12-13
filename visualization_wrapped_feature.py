@@ -1,3 +1,10 @@
+"""
+This code shows the visualization of the top artists, albums, and the top genre from the user's playlist.
+The main objective is to simulate the "Spotify Wrapped" feature for the playlist and create three separate 
+images displaying the information. 
+"""
+
+
 import sys
 sys.path.append('/opt/anaconda3/lib/python3.9/site-packages')
 
@@ -8,17 +15,18 @@ from PIL import Image, ImageDraw, ImageFont
 import requests
 from io import BytesIO
 
+#getting the id and secret to access the playlist
 client_id = '214061ed9da949f0988aa6da7e9c100a'
 client_secret= '53c9f5f9508a462ab9ff258525f329ca'
-
 client_credentials_manager = SpotifyClientCredentials(client_id=client_id, client_secret=client_secret)
 sp = spotipy.Spotify(client_credentials_manager = client_credentials_manager)
 
-
+#using the playlist link to access the information on the tracks
 playlist_link = "https://open.spotify.com/playlist/4xzeXA4rs1tMhi6nIOwTdN?si=4869dad12eee48a5"
 playlist_URI = playlist_link.split("/")[-1].split("?")[0]
 track_uris = [x["track"]["uri"] for x in sp.playlist_tracks(playlist_URI)["items"]]
 
+#creating the lists to get the information on the tracks
 tracks_uri = {}
 tracks_artist_name = {}
 tracks_artist_pop = {}
@@ -26,7 +34,7 @@ tracks_artist_genres = {}
 tracks_album = {}
 
 
-
+#creating a dataframe that has all the playlist information
 for track in sp.playlist_tracks(playlist_URI)["items"]:
     #URI
     track_uri = track["track"]["uri"]
@@ -52,7 +60,7 @@ for track in sp.playlist_tracks(playlist_URI)["items"]:
     tracks_artist_genres[track_name] = artist_info["genres"]
     tracks_album[track_name] = track["track"]["album"]["name"]
 
-# Putting it all together for the dataframe
+#putting it all together for the dataframe
 all_track_info = []
 
 for track in tracks_uri:
@@ -69,11 +77,9 @@ for track in tracks_uri:
 playlist_data = pd.DataFrame(all_track_info)
 
 
-# Identifying the top genres
+#identifying the top genres
 genre_counts = playlist_data["track_artist_genres"].value_counts()
-#print(genre_counts) # The results show repeating genres within the lists 
 
-# Splitting the lists such that each individual genre element is its own separate category
 genre_count = {}
 for arr in playlist_data['track_artist_genres']:
     for genre in arr:
@@ -83,7 +89,7 @@ for arr in playlist_data['track_artist_genres']:
         else:
             genre_count[genre] = 1
 
-# Sort genres from highest count to lowest count
+#sort genres from highest count to lowest count
 genres_in_order = dict(sorted(genre_count.items(), key = lambda item: item[1], reverse=True))
 
 album_counts = playlist_data["track_album"].value_counts()
@@ -91,10 +97,7 @@ album_counts = playlist_data["track_album"].value_counts()
 artist_count = playlist_data['track_artist'].value_counts()
 
 
-
-
-
-#                                     Getting the albums info
+#Getting the album info
 albums_info = {}
 
 #loop through each track in the playlist
@@ -112,20 +115,16 @@ all_album_info = []
 for album_name, album_info in albums_info.items():
     all_album_info.append(album_info)
 
-# Create a DataFrame
 album_data = pd.DataFrame(all_album_info)
 
-#                         Making a DataFrame with only the album names and image
+#creating a dataframe that contained only the name of the album and the url image
 two_columns = ['name', 'images']
 album_images = album_data[two_columns]
 
 #getting the first part of the url only to generate the image url
 album_images['images'] = album_images['images'].apply(lambda x: x[0]['url'] if x else None)
 
-
-
-
-#artist info 
+#getting the artist info 
 artists_info = {}
 
 for track in sp.playlist_tracks(playlist_URI)["items"]:
@@ -144,10 +143,9 @@ all_artist_info = []
 for artist_name, artist_info in artists_info.items():
     all_artist_info.append(artist_info)
 
-# Create a DataFrame
 artist_data = pd.DataFrame(all_artist_info)
 
-#making a DataFrame with only the artist names and image
+#making a data frame with only the artist names and image
 two_columns_artist = ['name', 'images']
 artist_images = artist_data[two_columns_artist]
 
@@ -156,11 +154,8 @@ artist_images['images'] = artist_images['images'].apply(lambda x: x[0]['url'] if
 
 
 
-
-
-#                               FURTHER VISUALIZATION
-#displaying the top 5 albums images
-#                                   Your Top Albums
+#displaying the top 5 album images
+#extracting the url and saving it into an image for the top 5 albums
 album1_name = album_counts.index[0]
 image1_url = album_images.loc[album_images['name'] == album1_name, 'images'].values[0]
 im1 = Image.open(BytesIO(requests.get(image1_url).content))
@@ -181,7 +176,7 @@ album5_name = album_counts.index[4]
 image5_url = album_images.loc[album_images['name'] == album5_name, 'images'].values[0]
 im5 = Image.open(BytesIO(requests.get(image5_url).content))
 
-#creating a illicit green from iColorPallette
+#creating an illicit green from iColorPallette
 background = Image.new("RGB", (500, 700), (71, 249, 184))
 
 #resizing the images to be small around 100by100
@@ -191,15 +186,18 @@ resize3 = im3.resize((100, 100), Image.ANTIALIAS)
 resize4 = im4.resize((100, 100), Image.ANTIALIAS) 
 resize5 = im5.resize((100, 100), Image.ANTIALIAS)  
 
+#pasting the images on the background 
 background.paste(resize1, (70, 100))
 background.paste(resize2, (70, 220))
 background.paste(resize3, (70, 340))
 background.paste(resize4, (70, 460))
 background.paste(resize5, (70, 580))
 
-#This is the part for Your Top Albums
+#including the album names and the title
 title = "Your Top Albums"
 draw = ImageDraw.Draw(background)
+
+#creating different fonts in different sizes
 font = ImageFont.truetype("arial.ttf", 25)
 font1 = ImageFont.truetype("arial.ttf", 30 )
 font2 = ImageFont.truetype("arial.ttf", 20)
@@ -207,7 +205,7 @@ font3 = ImageFont.truetype("arial.ttf", 16)
 font4 = ImageFont.truetype("arial.ttf", 14)
 draw.text((10, 40), title, font=font, fill=(0, 0, 128))
 
-#displaying the numbers
+#displaying the positions of the albums based on the order
 draw.text((20, 120), "#1", font=font1, fill=(0,0,128))
 draw.text((20, 240), "#2", font=font1, fill=(0,0,128))
 draw.text((20, 360), "#3", font=font1, fill=(0,0,128))
@@ -222,12 +220,11 @@ draw.text((195, 385), album3_name[len(album3_name)//2:], font=font2, fill=(0,0,1
 draw.text((200, 490), album4_name, font=font2, fill=(0,0,128))
 draw.text((200, 610), album5_name, font=font2, fill=(0,0,128))
 
-
-
 #displaying the top 5 artists
-#     Your Top Artists
+#accessing the top artists
 top_artists = artist_count.head()
 
+#saving the images of the artists in images
 artist1_name = top_artists.index[0]
 Aimage1_url = artist_images.loc[artist_images['name'] == artist1_name, 'images'].values[0]
 im1_artist = Image.open(BytesIO(requests.get(Aimage1_url).content))
@@ -258,44 +255,42 @@ resize3a = im3_artist.resize((100, 100), Image.ANTIALIAS)
 resize4a = im4_artist.resize((100, 100), Image.ANTIALIAS) 
 resize5a = im5_artist.resize((100, 100), Image.ANTIALIAS)  
 
+#pasting the images in the background
 background2.paste(resize1a, (70, 100))
 background2.paste(resize2a, (70, 220))
 background2.paste(resize3a, (70, 340))
 background2.paste(resize4a, (70, 460))
 background2.paste(resize5a, (70, 580))
 
-#                                    This is the part for Your Top Artists
+#displaying the title and the names of the artists as well as the postions
 title2 = "Your Top Artists"
 draw2 = ImageDraw.Draw(background2)
 draw2.text((10, 40), title2, font=font, fill=(0, 0, 128))
 
-#displaying the numebers
+#displaying the numbers
 draw2.text((20, 120), "#1", font=font1, fill=(0,0,128))
 draw2.text((20, 240), "#2", font=font1, fill=(0,0,128))
 draw2.text((20, 360), "#3", font=font1, fill=(0,0,128))
 draw2.text((20, 480), "#4", font=font1, fill=(0,0,128))
 draw2.text((20, 600), "#5", font=font1, fill=(0,0,128))
 
-#displaying the title of the songs
+#displaying the name of the artist
 draw2.text((200, 130), artist1_name, font=font2, fill=(0,0,128))
 draw2.text((200, 250), artist2_name, font=font2, fill=(0,0,128))
 draw2.text((200, 370), artist3_name, font=font2, fill=(0,0,128))
 draw2.text((200, 490), artist4_name, font=font2, fill=(0,0,128))
 draw2.text((200, 610), artist5_name, font=font2, fill=(0,0,128))
 
-
-
-#this part will be used when taking the all in one card
+#importing the template created and pasting the first artist in the background
 image_combine = Image.open(r"SpotifyTemplate.jpg")
 sizeAgain = im1_artist.resize((300, 230), Image.ANTIALIAS)
 together = image_combine.resize((500, 700))
 together.paste(sizeAgain, (95,72))
 
-
-#displaying it all together in one
+#accessing the top albums
 top_genre = genre_counts.index[0]
 
-# displaying the names 
+# displaying the artist names 
 draw_together = ImageDraw.Draw(together)
 draw_together.text((60, 395), artist1_name, font=font3, fill=(0,0,0))
 draw_together.text((60, 421), artist2_name, font=font3, fill=(0,0,0))
