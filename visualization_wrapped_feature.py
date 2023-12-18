@@ -16,8 +16,8 @@ import requests
 from io import BytesIO
 
 #getting the id and secret to access the playlist
-client_id = '214061ed9da949f0988aa6da7e9c100a'
-client_secret= '53c9f5f9508a462ab9ff258525f329ca'
+client_id = 'client id'
+client_secret= 'client secret'
 client_credentials_manager = SpotifyClientCredentials(client_id=client_id, client_secret=client_secret)
 sp = spotipy.Spotify(client_credentials_manager = client_credentials_manager)
 
