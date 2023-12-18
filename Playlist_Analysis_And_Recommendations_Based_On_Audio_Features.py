@@ -12,8 +12,8 @@ from datetime import datetime
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics.pairwise import cosine_similarity
 
-client_id = '4de970f6c75349e8a2006f4ab92bc13d'
-client_secret= '95d83665a4b748d4ae3da433c00f4737'
+client_id = 'client id'
+client_secret= 'client secret'
 
 client_credentials_manager = SpotifyClientCredentials(client_id=client_id, client_secret=client_secret)
 sp = spotipy.Spotify(client_credentials_manager = client_credentials_manager)
