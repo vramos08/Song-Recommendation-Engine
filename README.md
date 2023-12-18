@@ -1,6 +1,9 @@
 # Song-Recommendation-Engine
 This project aims to replicate the "Spotify Wrapped" feature which visualizes the user's top genre, 5 artists, and albums. We also aim to create a personalized recommendation playlist from a separate playlist that contains various artists and genres.
 
+# Client ID and Secret 
+In order to access the client id and client secret, you must log into the Spotify Developer Dashboard and create an app. Once the app is created, you will be able to access the client id and secret.
+
 # Data Extraction
 We accessed the playlist data using Spotify Web API and the spotipy library. It is important to first make an app through the Web API and provide the "client id" and "client secret" for this code to run. A data frame was created which extracted the track audio features, name, artists, genre, popularity, and album. A total of 97 rows and 23 columns were created for this data frame.
 
